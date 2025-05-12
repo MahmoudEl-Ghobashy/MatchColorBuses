@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a19a8864d9d33340a29159ff6d4efaa, type: 3}
   m_Name: GridLvl1
   m_EditorClassIdentifier: 
-  columns: 6
-  rows: 6
-  originPosition: {x: 0, y: 0, z: 0}
+  columns: 5
+  rows: 7
+  obstacleIndex: 06000000080000001c000000
+  holeIndex: 000000001e00000022000000
+  originPosition: {x: -2, y: 0, z: -3}
