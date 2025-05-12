@@ -64,7 +64,7 @@ public class TouchStateMachine : MonoBehaviour
                 {
                     if (isTouchingBusHead(touchStartPos))
                     {
-                        draggableBus = hitObject.GetComponent<BusController>();
+                        draggableBus = hitObject.transform.parent.GetComponent<BusController>();
                         draggableBus.BeginDrag();
                     }
                 }
