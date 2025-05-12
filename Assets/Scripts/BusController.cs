@@ -4,13 +4,17 @@ using UnityEngine.InputSystem;
 public class BusController : MonoBehaviour
 {
     private bool canDrag = false;
+    private Vector3 worldPos;
 
     private void Update()
     {
         if (canDrag)
         {
             Vector2 screenPos = Mouse.current.position.ReadValue();
-            transform.position = Camera.main.ScreenToWorldPoint(screenPos);
+            Vector3 screenPoint = new Vector3(screenPos.x, screenPos.y, Camera.main.transform.position.y);
+            worldPos = Camera.main.ScreenToWorldPoint(screenPoint);
+
+            transform.position = worldPos;
         }
     }
 

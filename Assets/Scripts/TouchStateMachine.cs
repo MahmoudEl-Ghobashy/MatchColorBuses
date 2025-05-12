@@ -17,6 +17,7 @@ public class TouchStateMachine : MonoBehaviour
     private Vector2 touchCurrentPos;
     private Vector2 touchStartPos;
     private BusController draggableBus;
+    private GameObject hitObject;
 
     void OnEnable()
     {
@@ -62,7 +63,10 @@ public class TouchStateMachine : MonoBehaviour
                 if (!draggableBus)
                 {
                     if (isTouchingBusHead(touchStartPos))
+                    {
+                        draggableBus = hitObject.GetComponent<BusController>();
                         draggableBus.BeginDrag();
+                    }
                 }
 
                 break;
@@ -71,6 +75,7 @@ public class TouchStateMachine : MonoBehaviour
                 {
                     draggableBus.StopDrag();
                     draggableBus = null;
+                    hitObject = null;
                 }
 
                 currentState = TouchState.Idle;
@@ -87,7 +92,7 @@ public class TouchStateMachine : MonoBehaviour
         if (Physics.Raycast(ray, out hit, 100f, LayerMask.GetMask("BusHead")))
         {
             Debug.Log("raycast hit");
-            draggableBus = hit.transform.gameObject.GetComponent<BusController>();
+            hitObject = hit.transform.gameObject;
             return true;
         }
 
