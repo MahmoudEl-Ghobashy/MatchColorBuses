@@ -31,6 +31,13 @@ public class GridManager : MonoBehaviour
 
     private void Start()
     {
+        GenerateGridWithBuses();
+    }
+
+    [ContextMenu("Generate Grid With Buses")]
+    private void GenerateGridWithBuses()
+    {
+        ClearGrid();
         GenerateGrid();
         SetBuses();
     }
@@ -131,5 +138,28 @@ public class GridManager : MonoBehaviour
         }
 
         return worldPositions;
+    }
+
+    [ContextMenu("Clear Grid and Buses")]
+    private void ClearGrid()
+    {
+        ClearChildren(tileParent);
+        ClearChildren(busParent);
+    }
+
+
+    private void ClearChildren(Transform parent)
+    {
+        List<Transform> children = new List<Transform>();
+        foreach (Transform child in parent)
+        {
+            children.Add(child);
+        }
+
+        foreach (Transform child in children)
+        {
+            if (child != parent)
+                DestroyImmediate(child.gameObject);
+        }
     }
 }
