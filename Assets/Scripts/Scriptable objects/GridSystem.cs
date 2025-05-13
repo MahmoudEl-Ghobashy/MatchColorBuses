@@ -5,12 +5,27 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "GridSystem", menuName = "Scriptable Objects/GridSystem")]
 public class GridSystem : ScriptableObject
 {
-    public int columns = 10; // X axis
+    [Header("Grid Dimensions")] public int columns = 10; // X axis
     public int rows = 10; // Z axis
-    public List<int> obstacleIndex;
+    public Vector3 originPosition = Vector3.zero;
+
+    [Header("Different cell types")] public List<int> obstacleIndex;
     public List<int> holeIndex;
 
-    public Vector3 originPosition = Vector3.zero;
+    [Header("Buses on grid")] public bool hasBlueBus;
+    public List<int> blueBusPositions;
+
+    public bool hasRedBus;
+    public List<int> redBusPositions;
+
+    public bool hasGreenBus;
+    public List<int> greenBusPositions;
+
+    public bool hasOrangeBus;
+    public List<int> orangeBusPositions;
+
+    public bool hasPurpleBus;
+    public List<int> purpleBusPositions;
 
     private void OnValidate()
     {

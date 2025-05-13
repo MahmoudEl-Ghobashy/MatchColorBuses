@@ -14,6 +14,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   columns: 5
   rows: 7
+  originPosition: {x: -2, y: 0, z: -3}
   obstacleIndex: 06000000080000001c000000
   holeIndex: 000000001e00000022000000
-  originPosition: {x: -2, y: 0, z: -3}
+  hasBlueBus: 0
+  blueBusPositions: 
+  hasRedBus: 0
+  redBusPositions: 
+  hasGreenBus: 0
+  greenBusPositions: 
+  hasOrangeBus: 1
+  orangeBusPositions: 0e0000000d0000000c0000000b000000
+  hasPurpleBus: 0
+  purpleBusPositions: 
