@@ -28,6 +28,12 @@ public class GridManager : MonoBehaviour
     [SerializeField] private Material orangeMaterial;
     [SerializeField] private Material orangeDullMaterial;
 
+    [Header("Walls")] [SerializeField] GameObject wallStraightPrefab;
+    [SerializeField] private GameObject wallEdgePrefab;
+    [SerializeField] private Transform wallsParent;
+
+    private int _cols;
+    private int _rows;
 
     private void Start()
     {
@@ -37,24 +43,27 @@ public class GridManager : MonoBehaviour
     [ContextMenu("Generate Grid With Buses")]
     private void GenerateGridWithBuses()
     {
+        _cols = gridSetup.columns;
+        _rows = gridSetup.rows;
         ClearGrid();
         GenerateGrid();
         SetBuses();
+        SetWalls();
     }
 
     private void GenerateGrid()
     {
-        for (int y = 0; y < gridSetup.rows; y++)
+        for (int y = 0; y < _rows; y++)
         {
-            for (int x = 0; x < gridSetup.columns; x++)
+            for (int x = 0; x < _cols; x++)
             {
-                if (gridSetup.holeIndex.Contains(y * gridSetup.columns + x))
+                if (gridSetup.holeIndex.Contains(y * _cols + x))
                 {
                     GenerateHole(x, y);
                     continue;
                 }
 
-                if (gridSetup.obstacleIndex.Contains(y * gridSetup.columns + x))
+                if (gridSetup.obstacleIndex.Contains(y * _cols + x))
                 {
                     GenerateObstacle(x, y);
                     continue;
@@ -132,19 +141,54 @@ public class GridManager : MonoBehaviour
         for (int i = 0; i < gridPositions.Count; i++)
         {
             int gridPos = gridPositions[i];
-            int x = gridPos % gridSetup.columns;
-            int y = gridPos / gridSetup.columns;
+            int y = gridPos / _cols;
+            int x = gridPos % _cols;
             worldPositions.Add(gridSetup.originPosition + new Vector3(x, 0f, y));
         }
 
         return worldPositions;
     }
 
+    private void SetWalls()
+    {
+        //Set Edges
+        PlaceWallEdge(-0.6f, -0.6f, 270);
+        PlaceWallEdge(_cols - 0.4f, -0.6f, 180);
+        PlaceWallEdge(_cols - 0.4f, _rows - 0.4f, 90);
+        PlaceWallEdge(-0.6f, _rows - 0.4f, 0);
+        //Set walls
+        for (int i = 0; i < _cols; i++)
+        {
+            PlaceWallStraight(i, -0.6f, 90);
+            PlaceWallStraight(i, _rows - 0.4f, 90);
+        }
+
+        for (int i = 0; i < _rows; i++)
+        {
+            PlaceWallStraight(-0.6f, i, 0);
+            PlaceWallStraight(_cols - 0.4f, i, 0);
+        }
+    }
+
+    private void PlaceWallEdge(float x, float y, float yRotation)
+    {
+        Vector3 pos = gridSetup.originPosition + new Vector3(x, 0f, y);
+        Instantiate(wallEdgePrefab, pos, Quaternion.Euler(0f, yRotation, 0f), wallsParent);
+    }
+
+    private void PlaceWallStraight(float x, float y, float yRotation)
+    {
+        Vector3 pos = gridSetup.originPosition + new Vector3(x, 0f, y);
+        Instantiate(wallStraightPrefab, pos, Quaternion.Euler(0f, yRotation, 0f), wallsParent);
+    }
+
+
     [ContextMenu("Clear Grid and Buses")]
     private void ClearGrid()
     {
         ClearChildren(tileParent);
         ClearChildren(busParent);
+        ClearChildren(wallsParent);
     }
 
 

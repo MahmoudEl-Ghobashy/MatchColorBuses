@@ -21,9 +21,9 @@ MonoBehaviour:
   blueBusPositions: 
   hasRedBus: 0
   redBusPositions: 
-  hasGreenBus: 0
-  greenBusPositions: 
+  hasGreenBus: 1
+  greenBusPositions: 130000001200000011000000100000000f000000
   hasOrangeBus: 1
   orangeBusPositions: 0e0000000d0000000c0000000b000000
-  hasPurpleBus: 0
-  purpleBusPositions: 
+  hasPurpleBus: 1
+  purpleBusPositions: 0100000002000000030000000400000009000000
