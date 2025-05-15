@@ -32,6 +32,10 @@ public class GridManager : MonoBehaviour
     [SerializeField] private GameObject wallEdgePrefab;
     [SerializeField] private Transform wallsParent;
 
+    [Header("Passengers")]
+    [SerializeField] GameObject passengerPrefab;
+    [SerializeField] GameObject passengerGate;
+
     private int _cols;
     private int _rows;
 
@@ -103,6 +107,7 @@ public class GridManager : MonoBehaviour
             BusSpawner blueBus = Instantiate(bus, busParent);
             blueBus.SetMaterialColors(blueMaterial, blueDullMaterial);
             blueBus.SetBusPositions(CalculateBusPositions(gridSetup.blueBusPositions));
+            SetPassage(gridSetup.bluePassagePosition, blueMaterial,gridSetup.blueBusPositions.Count);
         }
 
         if (gridSetup.hasGreenBus)
@@ -110,6 +115,7 @@ public class GridManager : MonoBehaviour
             BusSpawner greenBus = Instantiate(bus, busParent);
             greenBus.SetMaterialColors(greenMaterial, greenDullMaterial);
             greenBus.SetBusPositions(CalculateBusPositions(gridSetup.greenBusPositions));
+            SetPassage(gridSetup.greenPassagePosition, greenMaterial,   gridSetup.greenPassagePosition);
         }
 
         if (gridSetup.hasOrangeBus)
@@ -117,6 +123,7 @@ public class GridManager : MonoBehaviour
             BusSpawner orangeBus = Instantiate(bus, busParent);
             orangeBus.SetMaterialColors(orangeMaterial, orangeDullMaterial);
             orangeBus.SetBusPositions(CalculateBusPositions(gridSetup.orangeBusPositions));
+            SetPassage(gridSetup.orangePassagePosition, orangeMaterial,gridSetup.orangePassagePosition);
         }
 
         if (gridSetup.hasPurpleBus)
@@ -124,6 +131,7 @@ public class GridManager : MonoBehaviour
             BusSpawner purpleBus = Instantiate(bus, busParent);
             purpleBus.SetMaterialColors(purpleMaterial, purpleDullMaterial);
             purpleBus.SetBusPositions(CalculateBusPositions(gridSetup.purpleBusPositions));
+            SetPassage(gridSetup.purplePassagePosition, purpleMaterial,gridSetup.purplePassagePosition);
         }
 
         if (gridSetup.hasRedBus)
@@ -131,6 +139,75 @@ public class GridManager : MonoBehaviour
             BusSpawner redBus = Instantiate(bus, busParent);
             redBus.SetMaterialColors(redMaterial, redDullMaterial);
             redBus.SetBusPositions(CalculateBusPositions(gridSetup.redBusPositions));
+            SetPassage(gridSetup.redPassagePosition, redMaterial,gridSetup.redPassagePosition);
+        }
+    }
+
+    private void SetPassage(int passagePosition, Material material,int lengthOfBus)
+    {
+        Vector3 direction;
+
+        GameObject passage = Instantiate(passengerGate, wallsParent);
+        int y = passagePosition / _cols;
+        int x = passagePosition % _cols;
+        if (y == 0)
+        {
+            passage.transform.position = gridSetup.originPosition + new Vector3(x, 0, y - 0.6f);
+            passage.transform.rotation = Quaternion.Euler(0, 0, 0);
+            direction = Vector3.back;
+        }
+        else if (y == _rows - 1)
+        {
+            passage.transform.position = gridSetup.originPosition + new Vector3(x, 0, y + 0.6f);
+            passage.transform.rotation = Quaternion.Euler(0, 180, 0);
+           direction = Vector3.forward;
+        }
+        else if (x == 0)
+        {
+            passage.transform.position = gridSetup.originPosition + new Vector3(x -0.6f, 0, y);
+            passage.transform.rotation = Quaternion.Euler(0, 90, 0);
+            direction = Vector3.left;
+        }
+        else if(x == _cols - 1)
+        {
+            passage.transform.position = gridSetup.originPosition + new Vector3(x + 0.6f, 0, y);
+            passage.transform.rotation = Quaternion.Euler(0, 270, 0);
+            direction = Vector3.right;
+        }
+        else
+        {
+            DestroyImmediate(passage);
+            return;
+        }
+
+        Material[] materials = passage.GetComponent<MeshRenderer>().sharedMaterials;
+
+        materials[0] = material;
+        passage.GetComponent<MeshRenderer>().sharedMaterials = materials;
+        SpawnPassengersAtPassage(passage.transform.position, direction, 4 * lengthOfBus, material);
+    }
+
+    private void SpawnPassengersAtPassage(Vector3 passagePosition, Vector3 direction, int count,Material color)
+    {
+        float forwardSpacing = 0.4f;
+        float sideOffset = 0.15f;
+
+        Vector3 perpendicular = Vector3.Cross(Vector3.up, direction).normalized;
+
+        for (int i = 1; i < count + 1; i++)
+        {
+            Vector3 forwardOffset = direction * (i * forwardSpacing);
+            float sideDir = (i % 2 == 0) ? 1f : -1f;
+            Vector3 side = perpendicular * sideOffset * sideDir;
+
+            Vector3 finalPosition = passagePosition + forwardOffset + side;
+            GameObject passenger =  Instantiate(passengerPrefab, finalPosition, Quaternion.identity, wallsParent);
+            if (direction == Vector3.left || direction == Vector3.right)
+            {
+                passenger.transform.rotation = Quaternion.Euler(0, 90, 0);
+            }
+
+            passenger.GetComponentInChildren<SkinnedMeshRenderer>().sharedMaterial = color;
         }
     }
 
@@ -151,6 +228,9 @@ public class GridManager : MonoBehaviour
 
     private void SetWalls()
     {
+        //0.6 is spacing from bottom and right side
+        //0.4 is spacing from top and left side
+        
         //Set Edges
         PlaceWallEdge(-0.6f, -0.6f, 270);
         PlaceWallEdge(_cols - 0.4f, -0.6f, 180);

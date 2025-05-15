@@ -17,13 +17,18 @@ MonoBehaviour:
   originPosition: {x: -2, y: 0, z: -3}
   obstacleIndex: 06000000080000001c000000
   holeIndex: 000000001e00000022000000
-  hasBlueBus: 0
-  blueBusPositions: 
+  hasBlueBus: 1
+  blueBusPositions: 0e0000000d0000000c0000000b000000
+  bluePassagePosition: 0
   hasRedBus: 0
   redBusPositions: 
+  redPassagePosition: 0
   hasGreenBus: 1
   greenBusPositions: 130000001200000011000000100000000f000000
-  hasOrangeBus: 1
-  orangeBusPositions: 0e0000000d0000000c0000000b000000
+  greenPassagePosition: 9
+  hasOrangeBus: 0
+  orangeBusPositions: 
+  orangePassagePosition: 0
   hasPurpleBus: 1
   purpleBusPositions: 0100000002000000030000000400000009000000
+  purplePassagePosition: 0

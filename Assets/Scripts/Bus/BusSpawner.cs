@@ -21,7 +21,8 @@ public class BusSpawner : MonoBehaviour
     {
         busHead.transform.position = positions[0];
         _lastSpawnedPosition = busHead.transform.position;
-
+        Debug.Log("dir " + (positions[1] - positions[0]).normalized * -1);
+        busHead.transform.rotation = Quaternion.LookRotation((positions[1] - positions[0]).normalized * -1);
         for (int i = 1; i < positions.Count - 1; i++)
         {
             GameObject segment = Instantiate(busSegment.gameObject, positions[i], Quaternion.identity, this.transform);
