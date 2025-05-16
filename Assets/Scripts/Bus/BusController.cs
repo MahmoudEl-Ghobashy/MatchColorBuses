@@ -6,16 +6,23 @@ using UnityEngine.InputSystem;
 
 public class BusController : MonoBehaviour
 {
-    public Transform BusHead;
+
+    [SerializeField] Transform BusHead;
     public List<Transform> BusSegments;
-    public float segmentSpacing = 1.2f;
-    public float followSmoothness = 0.15f;
+    [SerializeField] float segmentSpacing = 1.2f;
+    [SerializeField] float followSmoothness = 0.15f;
 
     private bool canDrag = false;
     private Vector3 worldPos;
     private Tween moveTween;
     private Tween rotateTween;
     private List<Vector3> positionHistory = new List<Vector3>();
+    private GridSystem _gridSetup;
+
+    private float moveCooldown = 0.2f;
+    private float moveTimer = 0f;
+    private Vector3 currentTarget;
+
 
     private void Start()
     {
@@ -24,59 +31,75 @@ public class BusController : MonoBehaviour
 
     private void Update()
     {
-        if (canDrag)
+        if (!canDrag) return;
+
+        moveTimer -= Time.deltaTime;
+        if (moveTimer > 0f) return;
+
+        Vector2 screenPos = Mouse.current.position.ReadValue();
+        Vector3 screenPoint = new Vector3(screenPos.x, screenPos.y, Camera.main.transform.position.y);
+        Vector3 rawPos = Camera.main.ScreenToWorldPoint(screenPoint);
+
+        Vector3 delta = rawPos - BusHead.position;
+
+        if (delta.magnitude < 0.2f) return; // ignore tiny drags
+
+        Vector3 direction;
+
+        if (Mathf.Abs(delta.x) > Mathf.Abs(delta.z))
+            direction = new Vector3(Mathf.Sign(delta.x), 0f, 0f); // Left or right
+        else
+            direction = new Vector3(0f, 0f, Mathf.Sign(delta.z)); // Up or down
+
+        Vector3 targetPos = BusHead.position + direction;
+
+        targetPos = new Vector3(
+            Mathf.Round(targetPos.x),
+            0f,
+            Mathf.Round(targetPos.z)
+        );
+
+        if (!IsValidGridCell(targetPos) || IsOccupiedByBus(targetPos)) return;
+        if (targetPos == currentTarget) return;
+
+        currentTarget = targetPos;
+        moveTimer = moveCooldown;
+
+        // Move head
+        MoveTo(BusHead, targetPos);
+
+        // Insert new head position into history
+        positionHistory.Insert(0, targetPos);
+
+        // Move segments
+        for (int i = 0; i < BusSegments.Count; i++)
         {
-            Vector2 screenPos = Mouse.current.position.ReadValue();
-            Vector3 screenPoint = new Vector3(screenPos.x, screenPos.y, Camera.main.transform.position.y);
-            worldPos = Camera.main.ScreenToWorldPoint(screenPoint);
-
-
-            positionHistory.Insert(0, BusHead.position);
-
-            // Limit position history size
-            int maxHistory = BusSegments.Count * Mathf.RoundToInt(segmentSpacing / Time.deltaTime);
-            if (positionHistory.Count > maxHistory)
+            int index = (i + 1);
+            if (positionHistory.Count > index)
             {
-                positionHistory.RemoveAt(positionHistory.Count - 1);
-            }
-
-            //Calculate direction to detect rotation
-            Vector3 direction = worldPos - BusHead.position;
-
-            //Only rotate when value is higher than a threshold to avoid rotating all the time like a crazy head
-            if (direction.magnitude > 0.05f)
-            {
-                Quaternion targetRotation = Quaternion.LookRotation(direction);
-
-                rotateTween?.Kill();
-                rotateTween = BusHead.DORotateQuaternion(targetRotation, 0.1f).SetEase(Ease.Linear);
-            }
-
-            moveTween?.Kill();
-            moveTween = BusHead.DOMove(worldPos, 0.1f).SetEase(Ease.Linear);
-
-            for (int i = 0; i < BusSegments.Count; i++)
-            {
-                int index = Mathf.Clamp((i + 1) * Mathf.RoundToInt(segmentSpacing / Time.deltaTime), 0,
-                    positionHistory.Count - 1);
-                Vector3 targetPos = positionHistory[index];
-
-                //Calculate direction to detect rotation
-                direction = targetPos - BusSegments[i].position;
-
-                //Only rotate when value is higher than a threshold to avoid rotating all the time like a crazy head
-                if (direction.magnitude > 0.05f)
-                {
-                    Quaternion targetRotation = Quaternion.LookRotation(direction);
-
-                    BusSegments[i]?.DOKill();
-                    BusSegments[i].DORotateQuaternion(targetRotation, 0.1f).SetEase(Ease.Linear);
-                }
-
-                BusSegments[i]?.DOKill();
-                BusSegments[i].DOMove(targetPos, followSmoothness).SetEase(Ease.Linear);
+                Vector3 segmentTarget = positionHistory[index];
+                MoveTo(BusSegments[i], segmentTarget);
             }
         }
+
+        // Clean up old positions
+        int maxHistory = BusSegments.Count + 2;
+        if (positionHistory.Count > maxHistory)
+        {
+            positionHistory.RemoveAt(positionHistory.Count - 1);
+        }
+    }
+
+    private void MoveTo(Transform t, Vector3 target)
+    {
+        Vector3 dir = target - t.position;
+        if (dir.magnitude > 0.01f)
+        {
+            Quaternion rot = Quaternion.LookRotation(dir);
+            t.DORotateQuaternion(rot, moveCooldown / 2f).SetEase(Ease.Linear);
+        }
+
+        t.DOMove(target, moveCooldown).SetEase(Ease.Linear);
     }
 
     public void BeginDrag()
@@ -89,5 +112,32 @@ public class BusController : MonoBehaviour
         canDrag = false;
         moveTween?.Kill();
         rotateTween?.Kill();
+    }
+    internal void SetGridSystem(GridSystem gridSetup)
+    {
+        _gridSetup = gridSetup;
+    }
+
+    private bool IsValidGridCell(Vector3 worldPosition)
+    {
+        Vector3 local = worldPosition - _gridSetup.originPosition;
+        int x = Mathf.RoundToInt(local.x);
+        int y = Mathf.RoundToInt(local.z);
+
+        int index = y * _gridSetup.columns + x;
+        bool inBounds = x >= 0 && x < _gridSetup.columns && y >= 0 && y < _gridSetup.rows;
+        bool notBlocked = !_gridSetup.holeIndex.Contains(index) && !_gridSetup.obstacleIndex.Contains(index);
+
+        return inBounds && notBlocked;
+    }
+
+    private bool IsOccupiedByBus(Vector3 worldPosition)
+    {
+        foreach (Transform segment in BusSegments)
+        {
+            if (Vector3.Distance(segment.position, worldPosition) < 0.1f)
+                return true;
+        }
+        return false;
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -47,12 +48,6 @@ public class BusSpawner : MonoBehaviour
     private void ApplyMaterials(MeshRenderer meshRenderer, Material mainMaterial, Material dullMaterial)
     {
         Material[] materials = meshRenderer.sharedMaterials;
-
-        if (materials.Length < 2)
-        {
-            Debug.LogWarning($"{meshRenderer.name} does not have enough material slots (expected 2).");
-            return;
-        }
 
         materials[0] = mainMaterial;
         materials[1] = dullMaterial;
