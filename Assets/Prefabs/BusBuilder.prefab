@@ -9,10 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1059723751118763604}
-  - component: {fileID: 1194301348750044646}
   - component: {fileID: 2843752348455659491}
   m_Layer: 0
-  m_Name: Bus
+  m_Name: BusBuilder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -36,22 +35,6 @@ Transform:
   - {fileID: 6345573787999637916}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1194301348750044646
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8583525378064577998}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6331004fefad210448b13c56406c2541, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  BusHead: {fileID: 839546616470577931}
-  BusSegments: []
-  segmentSpacing: 1.2
-  followSmoothness: 1
 --- !u!114 &2843752348455659491
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -64,7 +47,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1cce80c20c790f04aa1704d236a058b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BusController: {fileID: 1194301348750044646}
+  BusController: {fileID: 0}
   busHead: {fileID: 2012414072209004644}
   busSegment: {fileID: 8622864053586390501}
   busTail: {fileID: 5213810891562183411}

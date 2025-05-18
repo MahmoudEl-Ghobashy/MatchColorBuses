@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a19a8864d9d33340a29159ff6d4efaa, type: 3}
+  m_Name: GridLvl
+  m_EditorClassIdentifier: 
+  columns: 1
+  rows: 1
+  originPosition: {x: 0, y: 0, z: 0}
+  obstacleIndex: 06000000080000001c000000270000002d0000001700000030000000
+  holeIndex: 
+  hasBlueBus: 0
+  blueBusPositions: 0a0000000b0000000c000000
+  bluePassagePosition: 13
+  hasRedBus: 0
+  redBusPositions: 
+  redPassagePosition: 5
+  hasGreenBus: 0
+  greenBusPositions: 190000001a00000021000000
+  greenPassagePosition: 34
+  hasOrangeBus: 0
+  orangeBusPositions: 
+  orangePassagePosition: 43
+  hasPurpleBus: 0
+  purpleBusPositions: 
+  purplePassagePosition: 41
