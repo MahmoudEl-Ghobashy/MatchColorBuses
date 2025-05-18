@@ -60,11 +60,13 @@ public class LevelBuilderManager : MonoBehaviour
 #elif UNITY_ANDROID
         if (Touch.activeTouches.Count > 0&& !isMousePressed)
         {
+        heightText.text = "Touch on";
             HandleClick();
             isMousePressed = true;
         }
-        else if (isMousePressed)
+        else if (Touch.activeTouches.Count == 0 && isMousePressed)
         {
+        heightText.text = "Touch off";
             isMousePressed = false;
         }
 #endif

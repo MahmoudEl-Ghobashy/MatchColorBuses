@@ -12,16 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a19a8864d9d33340a29159ff6d4efaa, type: 3}
   m_Name: GridLvl
   m_EditorClassIdentifier: 
-  columns: 1
-  rows: 1
-  originPosition: {x: 0, y: 0, z: 0}
+  columns: 7
+  rows: 7
+  originPosition: {x: -3, y: 0, z: -3}
   obstacleIndex: 06000000080000001c000000270000002d0000001700000030000000
   holeIndex: 
-  hasBlueBus: 0
+  hasBlueBus: 1
   blueBusPositions: 0a0000000b0000000c000000
   bluePassagePosition: 13
-  hasRedBus: 0
-  redBusPositions: 
+  hasRedBus: 1
+  redBusPositions: 000000000100000002000000
   redPassagePosition: 5
   hasGreenBus: 0
   greenBusPositions: 190000001a00000021000000
