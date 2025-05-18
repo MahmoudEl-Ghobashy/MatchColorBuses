@@ -6,7 +6,7 @@ public class PassengerSpawner : MonoBehaviour
     [SerializeField] private GameObject passengerGate;
     [SerializeField] private Transform wallsParent;
 
-    public void SpawnPassengersForBus(int passagePosition, int busLength, Material material,GridSystem setup)
+    public void SpawnPassengersForBus(int passagePosition, int busLength, Material material, GridSystem setup, BusController busController = null)
     {
         Vector3 direction;
         Vector3 passagePos;
@@ -52,11 +52,10 @@ public class PassengerSpawner : MonoBehaviour
             materials[0] = material;
             mr.sharedMaterials = materials;
         }
-
-        SpawnPassengerLine(passagePos, direction, busLength * 4, material);
+        SpawnPassengerLine(passagePos, direction, busLength * 4, material, busController);
     }
 
-    private void SpawnPassengerLine(Vector3 startPos, Vector3 direction, int count, Material material)
+    private void SpawnPassengerLine(Vector3 startPos, Vector3 direction, int count, Material material, BusController busController)
     {
         float forwardSpacing = 0.4f;
         float sideOffset = 0.15f;
@@ -71,6 +70,8 @@ public class PassengerSpawner : MonoBehaviour
 
             Vector3 finalPosition = startPos + forwardOffset + side;
             GameObject passenger = Instantiate(passengerPrefab, finalPosition, Quaternion.identity, wallsParent);
+            if (busController)
+                busController.Passengers.Add(passenger);
 
             if (direction == Vector3.left || direction == Vector3.right)
             {

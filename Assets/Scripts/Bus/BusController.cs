@@ -1,16 +1,18 @@
-using System;
-using System.Collections.Generic;
 using DG.Tweening;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
 
 public class BusController : MonoBehaviour
 {
 
     [SerializeField] Transform BusHead;
     public List<Transform> BusSegments;
-    [SerializeField] float segmentSpacing = 1.2f;
-    [SerializeField] float followSmoothness = 0.15f;
+    public Vector3 PassagePosition;
+    public List<GameObject> Passengers; 
 
     private bool canDrag = false;
     private Vector3 worldPos;
@@ -19,7 +21,7 @@ public class BusController : MonoBehaviour
     private List<Vector3> positionHistory = new List<Vector3>();
     private GridSystem _gridSetup;
 
-    private float moveCooldown = 0.2f;
+    private float moveCooldown = 0.15f;
     private float moveTimer = 0f;
     private Vector3 currentTarget;
 
@@ -27,6 +29,10 @@ public class BusController : MonoBehaviour
     private void Start()
     {
         positionHistory.Add(BusHead.position);
+        for (int i = 0; i < BusSegments.Count; i++)
+        {
+            positionHistory.Add(BusSegments[i].position);
+        }
     }
 
     private void Update()
@@ -36,13 +42,19 @@ public class BusController : MonoBehaviour
         moveTimer -= Time.deltaTime;
         if (moveTimer > 0f) return;
 
-        Vector2 screenPos = Mouse.current.position.ReadValue();
+        Vector2 screenPos = new Vector2(0, 0);
+#if UNITY_EDITOR
+        screenPos = Mouse.current.position.ReadValue();
+#elif UNITY_ANDROID
+        screenPos = Touch.activeTouches[0].screenPosition;
+#endif
+
         Vector3 screenPoint = new Vector3(screenPos.x, screenPos.y, Camera.main.transform.position.y);
         Vector3 rawPos = Camera.main.ScreenToWorldPoint(screenPoint);
 
         Vector3 delta = rawPos - BusHead.position;
 
-        if (delta.magnitude < 0.2f) return; // ignore tiny drags
+        if (delta.magnitude < 0.2f) return;
 
         Vector3 direction;
 
@@ -59,7 +71,7 @@ public class BusController : MonoBehaviour
             Mathf.Round(targetPos.z)
         );
 
-        if (!IsValidGridCell(targetPos) || IsOccupiedByBus(targetPos)) return;
+        if (!IsValidGridCell(targetPos) || GridManager.Instance.IsCellOccupied(targetPos)) return;
         if (targetPos == currentTarget) return;
 
         currentTarget = targetPos;
@@ -70,7 +82,7 @@ public class BusController : MonoBehaviour
 
         // Insert new head position into history
         positionHistory.Insert(0, targetPos);
-
+        GridManager.Instance.AssignGridCell(targetPos);
         // Move segments
         for (int i = 0; i < BusSegments.Count; i++)
         {
@@ -83,11 +95,13 @@ public class BusController : MonoBehaviour
         }
 
         // Clean up old positions
-        int maxHistory = BusSegments.Count + 2;
+        int maxHistory = BusSegments.Count + 1;
         if (positionHistory.Count > maxHistory)
         {
+            GridManager.Instance.FreeGridCell(positionHistory[^1]);
             positionHistory.RemoveAt(positionHistory.Count - 1);
         }
+       
     }
 
     private void MoveTo(Transform t, Vector3 target)
@@ -112,6 +126,7 @@ public class BusController : MonoBehaviour
         canDrag = false;
         moveTween?.Kill();
         rotateTween?.Kill();
+       StartCoroutine( CheckForPassagePosition());
     }
     internal void SetGridSystem(GridSystem gridSetup)
     {
@@ -131,13 +146,74 @@ public class BusController : MonoBehaviour
         return inBounds && notBlocked;
     }
 
-    private bool IsOccupiedByBus(Vector3 worldPosition)
+    public void SetPassagePosition(int passageIndex)
     {
-        foreach (Transform segment in BusSegments)
+        int x = passageIndex % _gridSetup.columns;
+        int y = passageIndex / _gridSetup.columns;
+
+        PassagePosition = _gridSetup.originPosition + new Vector3(x, 0f, y);
+    }
+
+    private IEnumerator CheckForPassagePosition()
+    {
+        bool isTargetReached = false;
+        foreach (Vector3 position in positionHistory)
         {
-            if (Vector3.Distance(segment.position, worldPosition) < 0.1f)
-                return true;
+            if (position == PassagePosition)
+            {
+                //ToDo animate characters 
+                yield return StartCoroutine(BeginCharacterAnimation());
+                isTargetReached = true;
+                break;
+            }
         }
-        return false;
+        if (isTargetReached)
+        {
+            foreach (Vector3 position in positionHistory)
+            {
+                GridManager.Instance.FreeGridCell(position);
+            }
+           DestroyImmediate(gameObject);
+        }
+    }
+
+    private IEnumerator BeginCharacterAnimation()
+    {
+        int passengerIndex = 0;
+        
+        for (int i = -1; i < BusSegments.Count && passengerIndex < Passengers.Count; i++)
+        {
+            int passengersToBoard = 4;
+
+            if (i == -1 || i == BusSegments.Count - 1)
+                passengersToBoard = 2; // head or tail
+
+            Transform targetSegment;
+            if (i ==-1)
+                targetSegment = BusHead.transform;
+            else
+                targetSegment = BusSegments[i];
+
+            for (int j = 0; j < passengersToBoard && passengerIndex < Passengers.Count; j++)
+            {
+                GameObject passenger = Passengers[passengerIndex];
+              
+
+                Vector3 offset = GetOffset(j, passengersToBoard);
+                Vector3 targetPos = targetSegment.position + offset;
+
+                passenger.transform.DOMove(targetPos, 0.15f).SetEase(Ease.InOutQuad);
+                passengerIndex++;
+                passenger.transform.parent = this.transform;
+                yield return new WaitForSeconds(0.15f);
+            }
+        }
+    }
+
+    private Vector3 GetOffset(int index, int total)
+    {
+        float spacing = 0.3f;
+        float startX = -((total - 1) * spacing) / 2f;
+        return new Vector3(startX + index * spacing, 0f, 0f);
     }
 }

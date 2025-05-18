@@ -28,17 +28,9 @@ public class GridGenerator : MonoBehaviour
                     go = Instantiate(tilePrefab ,tileParent);
 
                 go.transform.position = worldPos;
-                gridCells.Add(index, go);
+                GridManager.Instance.StoreGridCellToIndex(index, go);
             }
         }
-    }
-
-    public GameObject GetCellFromGrid(int index)
-    {
-        if (gridCells.TryGetValue(index, out GameObject cell))
-            return cell;
-
-        return null;
     }
 }
     

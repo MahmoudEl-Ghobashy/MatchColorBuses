@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.EnhancedTouch;
+using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
 
 public class TouchStateMachine : MonoBehaviour
 {
@@ -19,26 +20,32 @@ public class TouchStateMachine : MonoBehaviour
     private BusController draggableBus;
     private GameObject hitObject;
 
-    void OnEnable()
+    private void OnEnable()
     {
-        TouchSimulation.Enable();
+        EnhancedTouchSupport.Enable();
+    }
+
+    private void OnDisable()
+    {
+        EnhancedTouchSupport.Disable();
     }
 
     private void Update()
     {
-        if (Input.touchCount > 0) // Touch input
-        {
-            var touch = Input.GetTouch(0);
-            touchStartPos = touch.position;
-            Debug.Log("touching detected");
-            TakeAction();
-        }
-        else if (Mouse.current.leftButton.isPressed) // Mouse input 
+#if UNITY_EDITOR             
+        if (Mouse.current.leftButton.isPressed) // Mouse input 
         {
             Vector2 mousePos = Mouse.current.position.value;
             touchStartPos = mousePos;
             TakeAction();
         }
+#elif UNITY_ANDROID
+        if (Touch.activeTouches.Count > 0) // Touch input
+        {
+            touchStartPos = Touch.activeTouches[0].screenPosition;
+            TakeAction();
+        }
+#endif
         else
         {
             currentState = TouchState.Released;
@@ -68,7 +75,6 @@ public class TouchStateMachine : MonoBehaviour
                         draggableBus.BeginDrag();
                     }
                 }
-
                 break;
             case TouchState.Released:
                 if (draggableBus)

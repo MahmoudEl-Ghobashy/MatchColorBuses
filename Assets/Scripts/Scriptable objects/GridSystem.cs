@@ -40,7 +40,6 @@ public class GridSystem : ScriptableObject
     public void ValidateData()
     {
         originPosition = new Vector3(-columns / 2, 0, -rows / 2);
-        ResetAllBuses();
     }
 
     public void ResetAllBuses()

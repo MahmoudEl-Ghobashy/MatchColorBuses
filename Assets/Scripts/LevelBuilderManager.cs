@@ -59,8 +59,8 @@ public class LevelBuilderManager : MonoBehaviour
         }
 #elif UNITY_ANDROID
         if (Touch.activeTouches.Count > 0&& !isMousePressed)
-    {
-        HandleClick();
+        {
+            HandleClick();
             isMousePressed = true;
         }
         else if (isMousePressed)
@@ -85,6 +85,7 @@ public class LevelBuilderManager : MonoBehaviour
         setup.columns = gridWidth;
         widthText.text = gridWidth.ToString();
         setup.ValidateData();
+        setup.ResetAllBuses();
         manager.GenerateGridWithBuses();
         proceedBtn.interactable = false;
     }
@@ -105,6 +106,7 @@ public class LevelBuilderManager : MonoBehaviour
         setup.rows = gridHeight;
         heightText.text = gridHeight.ToString();
         setup.ValidateData();
+        setup.ResetAllBuses() ;
         manager.GenerateGridWithBuses();
         proceedBtn.interactable = false;
     }
