@@ -1,0 +1,5 @@
+C:/Work/MatchColorBuses/.utmp/RelWithDebInfo/3ue6n3a3/arm64-v8a/CMakeFiles/edit_cache.dir
+C:/Work/MatchColorBuses/.utmp/RelWithDebInfo/3ue6n3a3/arm64-v8a/CMakeFiles/rebuild_cache.dir
+C:/Work/MatchColorBuses/.utmp/RelWithDebInfo/3ue6n3a3/arm64-v8a/FramePacing/CMakeFiles/swappywrapper.dir
+C:/Work/MatchColorBuses/.utmp/RelWithDebInfo/3ue6n3a3/arm64-v8a/FramePacing/CMakeFiles/edit_cache.dir
+C:/Work/MatchColorBuses/.utmp/RelWithDebInfo/3ue6n3a3/arm64-v8a/FramePacing/CMakeFiles/rebuild_cache.dir
